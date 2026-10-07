@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.local
+*.log
+tsconfig.tsbuildinfo
+data/
+.state/
+.secrets/
+meta/
+.playwright-mcp/
+.vscode/
+.idea/
+.DS_Store

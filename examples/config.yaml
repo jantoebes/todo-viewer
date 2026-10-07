@@ -1,0 +1,10 @@
+primaryList: msft-todo
+accounts:
+  personal:
+    tenant: consumers
+    clientIdEnv: MSFT_CLIENT_ID
+lists:
+  msft-todo:
+    account: personal
+    discover: true
+    groups: {}

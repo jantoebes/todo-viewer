@@ -1,0 +1,35 @@
+{
+  "name": "todo-viewer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n next,watch,sync,dsstore,history -c blue,yellow,green,magenta,cyan -p \"{time} [{name}]\" -t \"yyyy-MM-dd HH:mm:ss\" \"next dev -p 4243\" \"node --watch scripts/watch-board.mts\" \"node scripts/run-forever.mts scripts/sync-watch.mts\" \"node --watch scripts/ds-store-cleanup.mts\" \"node --watch scripts/history-commit.mts\"",
+    "build": "next build",
+    "start": "node scripts/start.mts",
+    "lint": "next lint",
+    "test": "node --test src/lib/*.test.ts"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^6.0.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@headlessui/react": "^2.2.10",
+    "@tanstack/react-table": "^8.20.5",
+    "next": "^15.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "concurrently": "^10.0.5",
+    "typescript": "^5.6.3"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jantoebes/todo-viewer.git"
+  }
+}

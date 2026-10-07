@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>todo-viewer</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-lc</string>
+        <string>cd "__PROJECT_DIR__" &amp;&amp; exec __NODE__ scripts/start.mts</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>__PROJECT_DIR__</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>TODO_DATA_DIR</key>
+        <string>__DATA_DIR__</string>
+        <key>TODO_STATE_DIR</key>
+        <string>__STATE_DIR__</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>__LOG_DIR__/todo-viewer.log</string>
+    <key>StandardErrorPath</key>
+    <string>__LOG_DIR__/todo-viewer.err.log</string>
+</dict>
+</plist>
