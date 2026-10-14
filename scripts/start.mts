@@ -17,15 +17,19 @@ function isSyncEnabled(): boolean {
   return Boolean(process.env.MSFT_CLIENT_ID);
 }
 
+function isFormatEnabled(): boolean {
+  return process.env.TODO_FORMAT !== "0";
+}
+
 function processes(): Proc[] {
   const base: Proc[] = [
     { name: "next", args: [NEXT_BIN, "start", "-p", PORT, "-H", HOST] },
-    { name: "format", args: ["scripts/watch-board.mts"] },
     { name: "history", args: ["scripts/history-commit.mts"] },
     { name: "dsstore", args: ["scripts/ds-store-cleanup.mts"] },
   ];
-  const sync: Proc[] = [{ name: "sync", args: ["scripts/run-forever.mts", "scripts/sync-watch.mts"] }];
-  return isSyncEnabled() ? [...base, ...sync] : base;
+  const format: Proc[] = isFormatEnabled() ? [{ name: "format", args: ["scripts/watch-board.mts"] }] : [];
+  const sync: Proc[] = isSyncEnabled() ? [{ name: "sync", args: ["scripts/run-forever.mts", "scripts/sync-watch.mts"] }] : [];
+  return [...base, ...format, ...sync];
 }
 
 function prefixed(name: string, write: (line: string) => void): (chunk: Buffer) => void {

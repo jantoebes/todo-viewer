@@ -53,6 +53,7 @@ services:
 | `TODO_HISTORY_DIR` | `~/todo-history` | Local git repo with an automatic commit after every change |
 | `PORT` / `HOST` | `4243` / `127.0.0.1` | Web server |
 | `MSFT_CLIENT_ID` | – | Enables Microsoft To Do sync |
+| `TODO_FORMAT` | `1` | Set to `0` to disable the formatter (e.g. when another machine formats) |
 
 `install.sh` accepts `--data-dir` and `--state-dir`. Variables can also go in `.env.local`.
 
