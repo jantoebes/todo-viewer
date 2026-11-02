@@ -77,7 +77,19 @@ export async function acquireTokenByDeviceCode(
   pca: PublicClientApplication,
   onDeviceCode: (response: DeviceCodeResponse) => void = (response) => console.log(response.message)
 ): Promise<AuthenticationResult | null> {
-  return pca.acquireTokenByDeviceCode({ scopes: SCOPES, deviceCodeCallback: onDeviceCode });
+  const result = await pca.acquireTokenByDeviceCode({ scopes: SCOPES, deviceCodeCallback: onDeviceCode });
+  await removeOtherAccounts(pca, result?.account?.homeAccountId);
+  return result;
+}
+
+async function removeOtherAccounts(pca: PublicClientApplication, keepHomeAccountId: string | undefined): Promise<void> {
+  const cache = pca.getTokenCache();
+  const accounts = await cache.getAllAccounts();
+  await Promise.all(
+    keepHomeAccountId
+      ? accounts.filter((account) => account.homeAccountId !== keepHomeAccountId).map((account) => cache.removeAccount(account))
+      : []
+  );
 }
 
 export async function acquireToken(pca: PublicClientApplication): Promise<AuthenticationResult> {
