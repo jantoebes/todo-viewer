@@ -4,33 +4,33 @@ import { useEffect, useState } from "react";
 
 type LoginState =
   | { state: "idle" }
-  | { state: "pending"; userCode: string; verificationUri: string; expiresAt: string }
   | { state: "syncing" }
   | { state: "success"; at: string }
   | { state: "failed"; message: string };
 
 const POLL_MS = 3000;
 
-async function fetchLoginState(init?: RequestInit): Promise<LoginState> {
-  const res = await fetch("/api/sync/login", init);
+async function fetchLoginState(): Promise<LoginState> {
+  const res = await fetch("/api/sync/login");
   return res.json();
 }
 
+async function redirectToMicrosoft(): Promise<void> {
+  const res = await fetch("/api/sync/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ origin: window.location.origin }),
+  });
+  const { url } = await res.json();
+  window.location.href = url;
+}
+
 function isBusy(login: LoginState): boolean {
-  return login.state === "pending" || login.state === "syncing";
+  return login.state === "syncing";
 }
 
 function LoginStatus({ login }: { login: LoginState }) {
-  return login.state === "pending" ? (
-    <span>
-      Ga naar{" "}
-      <a href={login.verificationUri} target="_blank" rel="noreferrer">
-        {login.verificationUri}
-      </a>{" "}
-      en voer code <code style={{ fontWeight: "bold", userSelect: "all" }}>{login.userCode}</code> in (geldig tot{" "}
-      {new Date(login.expiresAt).toLocaleTimeString("nl-NL")})
-    </span>
-  ) : login.state === "syncing" ? (
+  return login.state === "syncing" ? (
     <span>Ingelogd — volledige sync loopt...</span>
   ) : login.state === "success" ? (
     <span>Ingelogd en gesynct om {new Date(login.at).toLocaleTimeString("nl-NL")}</span>
@@ -51,11 +51,9 @@ export function LoginPanel() {
     return () => clearInterval(interval);
   }, [login.state]);
 
-  const start = () => fetchLoginState({ method: "POST" }).then(setLogin);
-
   return (
     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", fontSize: "0.85rem" }}>
-      <button type="button" onClick={start} disabled={isBusy(login)}>
+      <button type="button" onClick={redirectToMicrosoft} disabled={isBusy(login)}>
         Opnieuw inloggen bij Microsoft
       </button>
       <LoginStatus login={login} />

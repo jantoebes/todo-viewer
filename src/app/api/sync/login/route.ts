@@ -7,6 +7,7 @@ export async function GET() {
   return NextResponse.json(getLoginState());
 }
 
-export async function POST() {
-  return NextResponse.json(await startLogin());
+export async function POST(request: Request) {
+  const { origin } = await request.json();
+  return NextResponse.json(await startLogin(origin));
 }

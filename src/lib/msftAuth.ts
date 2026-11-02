@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import {
+  CryptoProvider,
   PublicClientApplication,
   type AuthenticationResult,
   type ICachePlugin,
@@ -80,6 +81,58 @@ export async function acquireTokenByDeviceCode(
   const result = await pca.acquireTokenByDeviceCode({ scopes: SCOPES, deviceCodeCallback: onDeviceCode });
   await removeOtherAccounts(pca, result?.account?.homeAccountId);
   return result;
+}
+
+export async function createAuthCodeUrl(
+  pca: PublicClientApplication,
+  redirectUri: string,
+  state: string,
+  loginHint: string | undefined
+): Promise<{ url: string; verifier: string }> {
+  const { verifier, challenge } = await new CryptoProvider().generatePkceCodes();
+  const url = await pca.getAuthCodeUrl({
+    scopes: SCOPES,
+    redirectUri,
+    state,
+    codeChallenge: challenge,
+    codeChallengeMethod: "S256",
+    ...(loginHint ? { loginHint } : { prompt: "select_account" }),
+  });
+  return { url, verifier };
+}
+
+export async function acquireTokenByCode(
+  pca: PublicClientApplication,
+  request: { code: string; redirectUri: string; verifier: string },
+  expectedUsername: string | undefined
+): Promise<AuthenticationResult> {
+  const result = await pca.acquireTokenByCode({
+    code: request.code,
+    scopes: SCOPES,
+    redirectUri: request.redirectUri,
+    codeVerifier: request.verifier,
+  });
+  return isExpectedAccount(result.account?.username, expectedUsername)
+    ? keepOnlyAccount(pca, result)
+    : rejectAccount(pca, result, expectedUsername);
+}
+
+function isExpectedAccount(username: string | undefined, expected: string | undefined): boolean {
+  return !expected || expected.toLowerCase() === username?.toLowerCase();
+}
+
+async function keepOnlyAccount(pca: PublicClientApplication, result: AuthenticationResult): Promise<AuthenticationResult> {
+  await removeOtherAccounts(pca, result.account?.homeAccountId);
+  return result;
+}
+
+async function rejectAccount(
+  pca: PublicClientApplication,
+  result: AuthenticationResult,
+  expected: string | undefined
+): Promise<never> {
+  result.account ? await pca.getTokenCache().removeAccount(result.account) : undefined;
+  throw new Error(`Verkeerd account (${result.account?.username}); log in met ${expected}`);
 }
 
 async function removeOtherAccounts(pca: PublicClientApplication, keepHomeAccountId: string | undefined): Promise<void> {
