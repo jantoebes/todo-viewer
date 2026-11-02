@@ -59,8 +59,18 @@ async function acquireTokenSilentOrUndefined(
 ): Promise<AuthenticationResult | undefined> {
   const accounts = await pca.getTokenCache().getAllAccounts();
   return accounts[0]
-    ? pca.acquireTokenSilent({ account: accounts[0], scopes: SCOPES }).catch(() => undefined)
-    : undefined;
+    ? pca.acquireTokenSilent({ account: accounts[0], scopes: SCOPES }).catch(logSilentFailure)
+    : logNoAccount();
+}
+
+function logSilentFailure(error: unknown): undefined {
+  console.error("[msft-auth] acquireTokenSilent mislukt:", error instanceof Error ? `${error.name}: ${error.message}` : error);
+  return undefined;
+}
+
+function logNoAccount(): undefined {
+  console.error("[msft-auth] geen account in cache");
+  return undefined;
 }
 
 export async function acquireTokenByDeviceCode(
