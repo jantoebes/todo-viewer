@@ -6,13 +6,14 @@ import { DATA_DIR, STATE_DIR } from "../src/lib/paths.ts";
 
 const HISTORY_DIR = process.env.TODO_HISTORY_DIR ?? path.join(os.homedir(), "todo-history");
 const DEBOUNCE_MS = 5000;
+const FOREGROUND_MAINTENANCE = ["-c", "gc.autoDetach=false", "-c", "maintenance.autoDetach=false"];
 const SOURCES = [
   { dir: DATA_DIR, name: "data", matches: (f: string) => f.endsWith(".todo") },
   { dir: STATE_DIR, name: "state", matches: (f: string) => f === "config.yaml" || f.endsWith("-state.json") },
 ];
 
 function git(...args: string[]): string {
-  return execFileSync("git", ["-C", HISTORY_DIR, ...args], { encoding: "utf8" });
+  return execFileSync("git", ["-C", HISTORY_DIR, ...FOREGROUND_MAINTENANCE, ...args], { encoding: "utf8" });
 }
 
 function ensureRepo(): void {
